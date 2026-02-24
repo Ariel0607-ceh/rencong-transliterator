@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Aksara Rencong Font - Embedded from the CSS file */
+@font-face {
+  font-family: 'Aksara Rencong';
+  src: url('data:font/woff2;charset=utf-8;base64,d09GMgABAAAAABl0AA8AAAAALGAAABkYAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGh4GYACDNggEEQgKxnC2DQt4AAE2AiQDgWwEIAWGDAeBIAwHG4Eio6KM1crJ/iqBmwOaR3uACAlhdWpYd9OJxIK4LvqRn5h3CaZWjJBkdnh+m733fiSfD62iAhbiUBEjN7Owe2XmItJF6865SrfrVV9k71qeJ2/v/+06n2ikkUUWCOWBJZtXZ760SqttBVrOUVMCMPz/8oFLY4clXpNVlmwH2/pi3+WIc2X6Bq2fAPrv79lcvUc/xdJ4kPDqWa3/IOX6H8C+MIV6L9JkOiA7wcJgR9OazT21KM7RluYQviqEbsZkZ5P/nd3k2d98283XHC05au4orVgsGoVQf0dp1TUjEQopkViNslVlOF8omdnFmFW2SVfTPfrJRZkm5RtFAADMwCePhmXb5GP7C4CdinwoqA0CgeEk8UM7AoCXhBsQbJ5erYI129eHL2sQAAgxwHxRzHPFXUk5IJrEfkw/vVNJR0ERivDLJqk/FGIrqWMTADglYW8CbotREosC/j0l9GbwFaZEv/3TgFOm+YtRfVu47w9ve8ubHgWmGz3IfCTJyPhcQkvxidX8+HNgFUDHmU2gIAbBQoTy4MmLSRgzAA9QVgQr9kHmS0AAt4FAoqLtaBFsLVsKpUqtuSF2DYPRzd3D08vkbT5vgHOGxVft5+9gDbjNaQsMMgSHhDphPxBb/OGsoX0kKW2kxaCIQrdTWc0vACS/QtKMRr84HdhBTJb49gQISbwr4SHJdyU6PcSOe6zpWGOXFV7vlwTwKfpo1TaLJcAvIihCpTE5GnlBWlHooNL4mJ3maR1438gYqyneW+QFjhd4icDyEqmTo4/gIgq8i0IttflLPaIz3STypCAvhU5njnDzkykcnDxdNA6iH0dI8AKOUDyowLE1ULEZoNYhjYKJjWUL2BsFaFuQbBaVQXZw7EmPkrKBA5wc0N8PFnxsl5V28Mg056F2M6a4cBpXedkCJBqpQarZgowagvCCaXCr6D+V2niLHjFHA4ACluzI/VhSnvWxA2ct0lTxBZLNI19zbH//vBzvu1fcS6OtEarCTMLPiAs+hME72c6U7QsLiskgN7kTQfoIc2oEaPNdcZ9lAVs9hbVaSrL79c+QSrYiDO6PwLcrvc0jYImdslGVFmR5A7K7hbozAJY6Al4140Ky4gDvEH5L9h3WRhspII3VldLWqRxVvWs+w69j+KLH5yLLCTcahH+tqx0cLOFviE+5gaU1oFnmXRWmMD1JUCXvYi9QPZ7CMUXDC1LMIvcDSyK10zvcbEZZ0Ccy+seaUOoQbJ+zznIseXxdjCWNJZUKERBu0tf/KG3F89sB8jCQoyWFjUCSTIKWbhzbSG1pLEWb6TOzvAHkrtc80C4wVInOSQGwbwB7pALJjOgcu+vVJrtmYzu9rRSM14eIb4sRgDWEwLEsuahGVVR4GuIuqhpNqaKKE98o/6267f1DEgF15+1IBavF33ewTgwEI+2u0sAOVA3eBujD8PjkfSEGSwHQZ5UJh08XdREYwAdmwWCoXqts9aRuXqXFje7hpgUkiWV77B8sRUB6GGe8+2UWc6Uiv34QQg6YnEC7pkZ4m/TobMRV3F3BeSvjcAHPja8aMoHXqmrakfdLV0Isot1yMzdTV1Dfk/QJhSUpunYt3ztnKxCB1cZFi/J8vhqyOSkXOK5oP/j6TbkPo7tShbku6sk5u1s6mjcMn3r4uusGpsuzDxqQjHtf5zjTXfMxIDX3LqLqboaMlf9z7KUBhzcTRDt37WY3qeCpCLeWxsMy1ugcCCGHB+E75FlI0ht32Z3Ok6AasmEUIsRSclmrtQe6bI2L5LAJBE4KPVeIRXu1yVnKPaKHWyapO6VSj0qeRKlcU1YZs6GORSU7522Np') format('woff2'),
+       url('data:font/woff;charset=utf-8;base64,d09GRgABAAAAAB68AA8AAAAALGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAAeoAAAABoAAAAcpTFbPUdERUYAAB6EAAAAHAAAAB4AJwBBT1MvMgAAAcwAAABOAAAAYFkLVD1jbWFwAAAC1AAAAN0AAAG2WFr2gGN2dCAAAAO8AAAABAAAAAQAIQJ5Z2FzcAAAHnwAAAAIAAAACAAAABBnbHlmAAAEOAAAGGsAACNwgB+I8WhlYWQAAAFYAAAAMQAAADYlPDg0aGhlYQAAAYwAAAAeAAAAJAXbA1NobXR4AAACHAAAALYAAADsdTgLHmxvY2EAAAPAAAAAeAAAAHj46wGsbWF4cAAAAawAAAAeAAAAIACJAJtuYW1lAAAcpAAAAVYAAAMM16RpX3Bvc3QAAB38AAAAfQAAAKB3xcx5cHJlcAAAA7QAAAAHAAAAB2gGjIV42mNgZGBgAOKecJ3oeH6brwzczC+AIgwPu6ui4bTi//9MT5lmAbkcDEwgUQBGPQwwAAAAeNpjYGRgYJr1/z9DFLMEAxAwPWVgZEAF1gBriQQ0AAB42mNgZGBgsGaYwcDDAAJMQMzIABJzAPMZABheASUAAHjaY2BhYmOcwMDKwMDUxbSHgYGhB0IzPmAwZGQCijKwMjPAAIIFBM4+7kEMDgy8DAuYFf5bMEQxzWJgBAqDMAPja8ZJQEqBgREADZEK7AAAeNodjz0OQVEQhc8MiUqnINEoiNd67z5UtAor0JKIqKxDIlH76WxAJ7EDjUopwh4kEonPK06+MzN35uTaXDV9JBtKf2baKraFUr0V7KDUTvCC7viXEp/BsVoeKXhZIVfOeomP1fEGsw2+mvU6PuLNFT/FP/GR2l6hPqprN9hV6nk4gWtUJXtL3efOmcwV78/sNhV7jnkJXyd7p8Qe+CX9HnUhywy2h4YGZBW58YXs/v/1AwNDJrEAAHjarY5JVsJQFETvlyh2KJ3RaKIEpTGQ0LcztsGMbbgORo5cgktxps5dA9PnI4QDY491zm+q6terD6TYLBfDGu/KTMwtlnoWyapi6S1DiSYRE+a88CYSv9+qbWYsYtXISn7kW77kUz5AXpPJOxzFe46GJkPN2rQ079Chq70ePfoM8BkyYkyFKjXq2huA0ex2nDlI/r4PNa09eqhl6eOT07PzzMVlNhFz+ULxyr6+cW7vXO/+oeSXH58q1Vr9OUj8RjOM7Fbb6XRdr9cf+MPReO1PAv4X0z+lfgGtIiMPAAAAuAH/hbAEjQAAIQJ5AAAAFAAUABQAFAAUADAAcACYAL4BCAFOAZQB3gIoAn4C0AMqA6ID/AS0BSwFkAXSBjQGzgdkCBIIXAiYCPwJTgokCnQKsgr0CzILYgu2DAQMSgyWDPANXA2SDiAObA7oDxYPVA+oD94QJBB+EKoRChFWEXQRuBG4eNptenlwJOd1X7/v7v76mp6engtzYAYzAwyAwe5gDhDAAnvf90ntkiJpUqQlmqSig6LIJc1bsumyFcW2bMqWxFQUyglpW7TsoiuqVBTFlhQrkUNLFdvxH8pBR+VSlRWVFatS1iqvu2ewq0r2wKIb093ve997v+P1GsSYNQzokpcNakjDWM3MZjqrmeYsmN/5ylfIyz+6f5bcbuAvMFaNZ4wH4bcNzzCyo9V+VIHQhWajPRyMzrpUUlU1JVHwqmyM8/dtlxp3P7ScXDcynoM98JrRxesGeF0+yoXShUXAK7fTG4zxfslpkQvHo23o9OADgv4eV7OHapIVKO03/aadn3cdQuY4Wzy0XoePzVwXlnQbxypiMZgpU55XVIpZGZW46gjWW2hU0riHxlvGl+FuI5/GnU8DEFI0GvicTnsPjK4EQRj4lrJUGHhu6JpCUbhimirKOn7oW6YpTCfjyYV0PT8HD8HXjBwejPrpYuQ0E2P8Deu64DP+j4+WAssJag8=') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Ancient Civilization Color Palette */
+:root {
+  --ancient-gold: #C9A962;
+  --ancient-gold-light: #E8D5A3;
+  --ancient-gold-dark: #8B7355;
+  --ancient-brown: #5D4037;
+  --ancient-brown-light: #8D6E63;
+  --ancient-brown-dark: #3E2723;
+  --ancient-cream: #F5E6D3;
+  --ancient-stone: #D7CCC8;
+  --ancient-charcoal: #2C1810;
+  --ancient-terracotta: #A0522D;
+  --ancient-ochre: #CC7722;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Cinzel', 'Georgia', serif;
+  }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(139, 115, 85, 0.2);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--ancient-gold) 0%, var(--ancient-gold-dark) 100%);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--ancient-gold-light) 0%, var(--ancient-gold) 100%);
+}
+
+/* Ancient Pattern Background - Richer Colors */
+.ancient-bg {
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(139, 69, 19, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(160, 82, 45, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(201, 169, 98, 0.08) 0%, transparent 70%),
+    linear-gradient(160deg, #1a0f0a 0%, #2d1f16 25%, #3d2817 50%, #2a1a12 75%, #1a0f0a 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+.ancient-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0L60 40L100 50L60 60L50 100L40 60L0 50L40 40Z' fill='%23C9A962' fill-opacity='0.02'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='1' fill='%23D4AF37' fill-opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ancient-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ornate Border */
+.ornate-border {
+  position: relative;
+  border: 2px solid var(--ancient-gold);
+  border-radius: 8px;
+  background: rgba(245, 230, 211, 0.05);
+  box-shadow: 
+    0 0 0 1px rgba(201, 169, 98, 0.3),
+    0 0 20px rgba(201, 169, 98, 0.1),
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.ornate-border::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid rgba(201, 169, 98, 0.2);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+/* Corner Decorations */
+.corner-decoration {
+  position: relative;
+}
+
+.corner-decoration::before,
+.corner-decoration::after {
+  content: '◆';
+  position: absolute;
+  color: var(--ancient-gold);
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.corner-decoration::before {
+  top: 8px;
+  left: 8px;
+}
+
+.corner-decoration::after {
+  bottom: 8px;
+  right: 8px;
+  transform: rotate(180deg);
+}
+
+/* Glow Effect */
+.glow-gold {
+  text-shadow: 0 0 10px rgba(201, 169, 98, 0.5), 0 0 20px rgba(201, 169, 98, 0.3);
+}
+
+/* Rencong Font */
+.font-rencong {
+  font-family: 'Aksara Rencong', serif;
+}
+
+/* Input/Output Box Styling */
+.io-box {
+  @apply w-full min-h-[200px] p-4 rounded-lg resize-none;
+  font-size: 16px;
+  line-height: 1.6;
+  background: rgba(245, 230, 211, 0.08);
+  border: 1px solid rgba(201, 169, 98, 0.3);
+  color: var(--ancient-cream);
+  transition: all 0.3s ease;
+}
+
+.io-box:focus {
+  outline: none;
+  border-color: var(--ancient-gold);
+  box-shadow: 0 0 15px rgba(201, 169, 98, 0.2);
+  background: rgba(245, 230, 211, 0.12);
+}
+
+.io-box::placeholder {
+  color: rgba(245, 230, 211, 0.4);
+}
+
+/* Ancient Button */
+.ancient-btn {
+  @apply px-6 py-3 rounded-lg font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, var(--ancient-gold) 0%, var(--ancient-gold-dark) 100%);
+  color: var(--ancient-charcoal);
+  border: 1px solid rgba(201, 169, 98, 0.5);
+  box-shadow: 0 4px 15px rgba(201, 169, 98, 0.3);
+}
+
+.ancient-btn:hover {
+  background: linear-gradient(135deg, var(--ancient-gold-light) 0%, var(--ancient-gold) 100%);
+  box-shadow: 0 6px 25px rgba(201, 169, 98, 0.5);
+  transform: translateY(-2px);
+}
+
+.ancient-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(201, 169, 98, 0.3);
+}
+
+/* Mapping Card */
+.mapping-card {
+  @apply p-3 rounded-lg text-center transition-all duration-300;
+  background: rgba(245, 230, 211, 0.05);
+  border: 1px solid rgba(201, 169, 98, 0.2);
+}
+
+.mapping-card:hover {
+  background: rgba(245, 230, 211, 0.1);
+  border-color: rgba(201, 169, 98, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Section Divider */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--ancient-gold) 20%, var(--ancient-gold) 80%, transparent 100%);
+  opacity: 0.5;
+}
+
+/* Copy Button */
+.copy-btn {
+  @apply px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2;
+  background: rgba(201, 169, 98, 0.15);
+  color: var(--ancient-gold);
+  border: 1px solid rgba(201, 169, 98, 0.3);
+}
+
+.copy-btn:hover {
+  background: rgba(201, 169, 98, 0.25);
+  border-color: rgba(201, 169, 98, 0.5);
+}
+
+.copy-btn.copied {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+/* Warning Banner */
+.warning-banner {
+  @apply p-4 rounded-lg mb-4;
+  background: rgba(204, 119, 34, 0.15);
+  border: 1px solid rgba(204, 119, 34, 0.4);
+  color: var(--ancient-gold-light);
+}
+
+/* Title Styling */
+.ancient-title {
+  font-family: 'Cinzel', 'Georgia', serif;
+  background: linear-gradient(135deg, var(--ancient-gold-light) 0%, var(--ancient-gold) 50%, var(--ancient-gold-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2; 
+  padding-bottom: 0.1em;
+}
+
+/* Subtitle */
+.ancient-subtitle {
+  color: rgba(245, 230, 211, 0.7);
+  font-style: italic;
+}
+
+/* Label */
+.io-label {
+  @apply text-sm font-semibold mb-2 uppercase tracking-wider;
+  color: var(--ancient-gold);
+}
+
+/* Scroll Area */
+.scroll-area {
+  @apply overflow-auto custom-scrollbar;
+  max-height: 400px;
+}
