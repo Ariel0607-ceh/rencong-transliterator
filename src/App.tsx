@@ -27,8 +27,9 @@ const REPLACEMENTS: Record<string, string> = {
   'th': 'T',
   'dh': 'D',
   'ks': 'S',
-  'e1': 'e',  // e pepet
-  'e4': 'E'   // e taling
+  'e1': 'e',   // e pepet
+  'e4': 'E',   // e taling
+  '-': 'O'    // dash to capital O
 };
 
 // Mapping display data
@@ -61,7 +62,7 @@ const convertInput = (inputString: string): { output: string; changes: string[] 
   return { output: result, changes };
 };
 
-// Check for unspecified 'e' (only lowercase e, not uppercase E)
+// Check for unspecified 'e' (ONLY lowercase e, NEVER uppercase E)
 const checkForUnspecifiedE = (input: string): string[] => {
   const words = input.split(/\s+/);
   return words.filter(word => {
@@ -71,9 +72,14 @@ const checkForUnspecifiedE = (input: string): string[] => {
       .replace(/e1/g, 'XX')  // Replace e1 with placeholder
       .replace(/e4/g, 'XX'); // Replace e4 with placeholder
     
-    // Now check if there's any standalone 'e' left (lowercase only)
-    // Also ignore uppercase 'E' entirely
-    return cleaned.includes('e');
+    // Only check for lowercase 'e' - uppercase 'E' is always valid
+    // Use a loop to check each character to be explicit
+    for (let i = 0; i < cleaned.length; i++) {
+      if (cleaned[i] === 'e') {
+        return true; // Found lowercase e that's not part of e1/e4
+      }
+    }
+    return false;
   });
 };
 
@@ -85,37 +91,75 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [showMapping, setShowMapping] = useState(false);
   const [sampleIndex, setSampleIndex] = useState(0);
+  const [forceLowercase, setForceLowercase] = useState(true); // Toggle state
+  const [isBlocked, setIsBlocked] = useState(false); // Block output when unspecified e exists
   
   const SAMPLES = ['Saya suka makan kfc', 'me1re4ka orang yang baik'];
 
-    // Handle input change
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const value = e.target.value;
-      setInput(value);
-      
-      // Letters that should stay uppercase: B,C,D,E,G,H,J,K,N,O,P,R,S,T,Y
-      const preserveUppercase = ['B', 'C', 'D', 'E', 'G', 'H', 'J', 'K', 'N', 'O', 'P', 'R', 'S', 'T', 'Y'];
-      
-      // Convert to lowercase except for preserved uppercase letters
-      const processed = value.split('').map(char => {
-        if (preserveUppercase.includes(char)) {
-          return char; // Keep as uppercase
-        }
-        if (/[a-zA-Z]/.test(char)) {
-          return char.toLowerCase(); // Lowercase everything else
-        }
-        return char; // Non-letters stay same
-      }).join('');
-    
-    // Check for unspecified 'e'
-    const unspecifiedE = checkForUnspecifiedE(processed);
-    setErrorWords(unspecifiedE);
-    
-    // Convert
-    const { output: converted, changes: changeList } = convertInput(processed);
-    setOutput(converted);
-    setChanges(changeList);
-  }, []);
+  // Separate processing function that can be called from multiple places
+const processInput = useCallback((value: string, lowercaseMode: boolean) => {
+  let processed: string;
+  
+  if (lowercaseMode) {
+    // When toggle is ON: Force everything to lowercase except 'O' (from dash) and 'E'
+    processed = value.split('').map(char => {
+      if (char === '-') {
+        return 'O'; // Dash becomes O (preserve as uppercase)
+      }
+      if (char === 'E') {
+        return 'E'; // Capital E always stays as E (not affected by toggle)
+      }
+      if (/[a-zA-Z]/.test(char)) {
+        return char.toLowerCase(); // Everything else lowercase
+      }
+      return char; // Non-letters stay same
+    }).join('');
+  } else {
+    // When toggle is OFF: Keep all letters as-is (allow uppercase)
+    processed = value.split('').map(char => {
+      if (char === '-') {
+        return 'O'; // Dash still becomes O
+      }
+      return char;
+    }).join('');
+  }
+
+  // Check for unspecified 'e'
+  const unspecifiedE = checkForUnspecifiedE(processed);
+  setErrorWords(unspecifiedE);
+  
+  // BLOCK OUTPUT if there are unspecified e
+  if (unspecifiedE.length > 0) {
+    setIsBlocked(true);
+    setOutput('');
+    setChanges([]);
+    return; // Stop here - don't process further
+  }
+  
+  setIsBlocked(false);
+
+  // Convert (apply other transliterations)
+  const { output: converted, changes: changeList } = convertInput(processed);
+  setOutput(converted);
+  setChanges(changeList);
+}, []);
+
+  // Handle input change
+const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const value = e.target.value;
+  setInput(value);
+  processInput(value, forceLowercase);
+}, [forceLowercase, processInput]);
+
+// Handle toggle switch change - re-process existing input
+const handleToggleChange = useCallback(() => {
+  const newValue = !forceLowercase;
+  setForceLowercase(newValue);
+  // Re-process existing input with new toggle state
+  if (input) {
+    processInput(input, newValue);
+  }
+}, [forceLowercase, input, processInput]);
 
   // Clear input
   const handleClear = useCallback(() => {
@@ -357,32 +401,49 @@ export default function App() {
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Input Section */}
           <div className="ornate-border corner-decoration p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Type className="w-5 h-5 text-[#C9A962]" />
-                <label className="io-label">Input (Rumi)</label>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={loadSample}
-                  className="copy-btn text-xs"
-                  title="Load sample text"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  Sample
-                </button>
-                {input && (
-                  <button
-                    onClick={handleClear}
-                    className="copy-btn text-xs"
-                    title="Clear input"
-                  >
-                    <X className="w-3 h-3" />
-                    Clear
-                  </button>
-                )}
-              </div>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+  <div className="flex items-center gap-2">
+    <Type className="w-5 h-5 text-[#C9A962]" />
+    <label className="io-label">Input (Rumi)</label>
+  </div>
+  <div className="flex gap-2 items-center">
+    {/* Toggle Switch */}
+    <div className="flex items-center gap-2 mr-2">
+      <span className="text-xs text-[#C9A962]/70">Lowercase</span>
+      <button
+  onClick={handleToggleChange}
+  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+    forceLowercase ? 'bg-[#C9A962]' : 'bg-[#C9A962]/30'
+  }`}
+  title={forceLowercase ? "Force lowercase ON" : "Force lowercase OFF"}
+>
+        <span
+          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+            forceLowercase ? 'translate-x-5' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+    <button
+      onClick={loadSample}
+      className="copy-btn text-xs"
+      title="Load sample text"
+    >
+      <Sparkles className="w-3 h-3" />
+      Sample
+    </button>
+    {input && (
+      <button
+        onClick={handleClear}
+        className="copy-btn text-xs"
+        title="Clear input"
+      >
+        <X className="w-3 h-3" />
+        Clear
+      </button>
+    )}
+  </div>
+</div>
             <ScrollArea className="scroll-area">
               <textarea
                 value={input}
@@ -419,17 +480,28 @@ Examples:
               </button>
             </div>
             <p className="text-xs text-[#C9A962]/60 mb-3 italic">
-              Copy this text and use with downloaded Rencong font for perfect alignment
-            </p>
+  Copy this transliterated Latin text, then paste it into any word processor 
+  (Microsoft Word, Google Docs, etc.) and apply the downloaded Rencong font 
+  to display it in proper Neo-Rencong script
+</p>
             <ScrollArea className="scroll-area">
-              <textarea
-                value={output}
-                readOnly
-                placeholder="Transliterated output will appear here..."
-                className="io-box custom-scrollbar bg-black/20"
-                spellCheck={false}
-              />
-            </ScrollArea>
+  {isBlocked ? (
+    <div className="io-box custom-scrollbar bg-black/20 flex items-center justify-center min-h-[200px]">
+      <span className="text-[#CC7722] text-center">
+        ⚠️ Output Blocked!<br/>
+        <span className="text-sm">Please specify all 'e' characters using e1 or e4</span>
+      </span>
+    </div>
+  ) : (
+    <textarea
+      value={output}
+      readOnly
+      placeholder="Transliterated output will appear here..."
+      className="io-box custom-scrollbar bg-black/20"
+      spellCheck={false}
+    />
+  )}
+</ScrollArea>
             <div className="flex justify-between items-center mt-3 text-xs text-[#C9A962]/60">
               <span>{output.length} characters</span>
               {changes.length > 0 && (
@@ -509,27 +581,34 @@ Examples:
             </div>
           </div>
           {/* Replace the entire ScrollArea section with this */}
-<div 
-  className={`h-[300px] w-full rounded-md border border-[rgba(201,169,98,0.3)] ${output ? 'overflow-y-auto custom-scrollbar' : 'overflow-hidden'}`}
+          <div 
+  className={`h-[300px] w-full rounded-md border border-[rgba(201,169,98,0.3)] ${output && !isBlocked ? 'overflow-y-auto custom-scrollbar' : 'overflow-hidden'}`}
   style={{ backgroundColor: 'rgba(245, 230, 211, 0.08)' }}
 >
-  {output ? (
+  {isBlocked ? (
+    <div className="w-full h-[300px] flex items-center justify-center">
+      <span className="text-[#CC7722] text-center text-lg">
+        ⚠️ Output Blocked!<br/>
+        <span className="text-sm">Please specify all 'e' characters using e1 or e4</span>
+      </span>
+    </div>
+  ) : output ? (
     <div 
       className="w-full p-6"
-    style={{ 
-      fontFamily: "'Aksara Rencong', serif",
-      fontSize: '42px',  // or whatever size you chose
-      lineHeight: '1.0',
-      letterSpacing: '-0.02em',
-      wordSpacing: '0.15em',
-      wordBreak: 'break-word',      /* Add this to force wrap */
-      whiteSpace: 'normal',         /* Change from pre-wrap to normal */
-      overflowWrap: 'break-word',    /* Ensure long strings break */
-      color: '#F5E6D3',
-      boxSizing: 'border-box'
-    }}
-  >
-    {output}
+      style={{ 
+        fontFamily: "'Aksara Rencong', serif",
+        fontSize: '42px',
+        lineHeight: '1.0',
+        letterSpacing: '-0.02em',
+        wordSpacing: '0.15em',
+        wordBreak: 'break-word',
+        whiteSpace: 'normal',
+        overflowWrap: 'break-word',
+        color: '#F5E6D3',
+        boxSizing: 'border-box'
+      }}
+    >
+      {output}
     </div>
   ) : (
     <div className="w-full h-[300px] flex items-center justify-center">
@@ -540,7 +619,7 @@ Examples:
         Rencong script will appear here...
       </span>
     </div>
-    )}
+  )}
 </div>
           <p className="text-xs text-[#C9A962]/50 mt-3 text-center">
             Displayed using Aksara Rencong font
@@ -794,6 +873,15 @@ Examples:
                 </li>
               </ul>
             </div>
+            <div className="mt-4 p-3 bg-[#C9A962]/10 rounded-lg border border-[#C9A962]/20">
+  <p className="text-xs text-[#F5E6D3]/70">
+    <strong className="text-[#C9A962]">Note:</strong> Capital letters 
+    <span className="font-mono text-[#C9A962]"> (B, C, D, E, G, H, J, K, N, O, P, R, S, T, Y) </span> 
+    are used in this transliterator to represent specific Neo-Rencong characters, 
+    but these are variant forms not typically used in standard Neo-Rencong script. 
+    Use the toggle switch above to allow uppercase input when needed.
+  </p>
+</div>
           </div>
         </div>
 
