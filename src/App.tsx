@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   Copy, 
   RefreshCw, 
@@ -12,8 +12,9 @@ import {
   BookOpen,
   History,
   Printer,
-  Download  
+  FileArchive
 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Landmark } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
@@ -31,6 +32,50 @@ const REPLACEMENTS: Record<string, string> = {
   'e4': 'E',   // e taling
   '-': 'O'    // dash to capital O
 };
+
+const RENCONG_FACTS = [
+  {
+    id: 1,
+    title: "Austronesian Roots",
+    content: "Rencong is a native 'Surat Ulu' script of Sumatra, evolving from ancient Brahmi influences into a unique Malay-Polynesian writing system used long before colonial contact."
+  },
+  {
+    id: 2,
+    title: "The Kerinci Connection",
+    content: "While the name mirrors the famous Acehnese dagger, the Rencong script is the soul of the Kerinci highlands in Jambi, used by the Malay-Minangkabau people to record their history."
+  },
+  {
+    id: 3,
+    title: "Organic Mediums",
+    content: "Ancient Malays carved Rencong into 'gelumpai' (bamboo strips), 'nipah' leaves, and buffalo horn, using sharp knives or 'kalam' to etch the angular characters."
+  },
+  
+  {
+    id: 4,
+    title: "The Ulu Script Family",
+    content: "It is part of the distinct 'Surat Ulu' (Upstream Script) family, alongside Rejang and Lampung, representing the high literacy of inland Malay civilizations."
+  },
+  {
+    id: 5,
+    title: "The Jawi Transition",
+    content: "As Islam spread through the Malay Archipelago, Rencong was gradually replaced by Jawi (Arabic-Malay) for religious texts, though it remained a secret script for local lore."
+  },
+  {
+    id: 6,
+    title: "Identity Revival",
+    content: "Today, Rencong is a symbol of regional Malay pride. Local governments in Jambi and Sumatra are digitizing these ancient texts to preserve them for the next generation."
+  },
+  {
+    id: 7,
+    title: "Pre-Islamic Literacy",
+    content: "Rencong proves that Malay society possessed a sophisticated writing system for laws and poetry centuries before the adoption of Latin or Arabic alphabets."
+  },
+  {
+    id: 8,
+    title: "Sacred Manuscripts",
+    content: "The script was used for 'Tambo' (histories) and 'Mantera' (incantations), acting as a sacred vessel for the ancestral wisdom of the Malay world."
+  }
+];
 
 // Mapping display data
 const MAPPING_DISPLAY = [
@@ -93,8 +138,43 @@ export default function App() {
   const [sampleIndex, setSampleIndex] = useState(0);
   const [forceLowercase, setForceLowercase] = useState(true); // Toggle state
   const [isBlocked, setIsBlocked] = useState(false); // Block output when unspecified e exists
-  
   const SAMPLES = ['Saya suka makan kfc', 'me1re4ka orang yang baik'];
+  const [currentFactIndex, setCurrentFactIndex] = useState(0);
+  const [isFactTransitioning, setIsFactTransitioning] = useState(false);
+
+  // Auto-advance facts every 6 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleNextFact();
+    }, 6000);
+    
+    return () => clearInterval(interval);
+  }, [currentFactIndex]);
+
+  const handleNextFact = useCallback(() => {
+    setIsFactTransitioning(true);
+    setTimeout(() => {
+      setCurrentFactIndex((prev) => (prev + 1) % RENCONG_FACTS.length);
+      setIsFactTransitioning(false);
+    }, 300);
+  }, []);
+
+  const handlePrevFact = useCallback(() => {
+    setIsFactTransitioning(true);
+    setTimeout(() => {
+      setCurrentFactIndex((prev) => (prev - 1 + RENCONG_FACTS.length) % RENCONG_FACTS.length);
+      setIsFactTransitioning(false);
+    }, 300);
+  }, []);
+
+  const goToFact = useCallback((index: number) => {
+    if (index === currentFactIndex) return;
+    setIsFactTransitioning(true);
+    setTimeout(() => {
+      setCurrentFactIndex(index);
+      setIsFactTransitioning(false);
+    }, 300);
+  }, [currentFactIndex]);
 
   // Separate processing function that can be called from multiple places
 const processInput = useCallback((value: string, lowercaseMode: boolean) => {
@@ -167,6 +247,7 @@ const handleToggleChange = useCallback(() => {
     setOutput('');
     setChanges([]);
     setErrorWords([]);
+    setIsBlocked(false); 
   }, []);
 
   // Copy to clipboard
@@ -462,6 +543,67 @@ Examples:
               <span>{input.length} characters</span>
               <span>{input.split(/\s+/).filter(w => w).length} words</span>
             </div>
+              {/* Facts Carousel */}
+                <div className="mt-4 p-4 bg-[#C9A962]/5 rounded-lg border border-[#C9A962]/20">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Landmark className="w-4 h-4 text-[#C9A962]" />
+                    <span className="text-xs font-semibold text-[#C9A962] uppercase tracking-wider">Did You Know?</span>
+                  </div>
+                  
+                  <div className="relative overflow-hidden min-h-[80px]">
+                    <div 
+                      className={`transition-all duration-300 ease-in-out ${
+                        isFactTransitioning 
+                          ? 'opacity-0 translate-x-4' 
+                          : 'opacity-100 translate-x-0'
+                      }`}
+                    >
+                      <h4 className="text-sm font-bold text-[#F5E6D3] mb-1">
+                        {RENCONG_FACTS[currentFactIndex].title}
+                      </h4>
+                      <p className="text-xs text-[#F5E6D3]/70 leading-relaxed">
+                        {RENCONG_FACTS[currentFactIndex].content}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Navigation */}
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#C9A962]/10">
+                    {/* Dots */}
+                    <div className="flex gap-1.5">
+                      {RENCONG_FACTS.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => goToFact(idx)}
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            idx === currentFactIndex 
+                              ? 'bg-[#C9A962] w-4' 
+                              : 'bg-[#C9A962]/30 hover:bg-[#C9A962]/50'
+                          }`}
+                          aria-label={`Go to fact ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                    
+                    {/* Arrows */}
+                    <div className="flex gap-1">
+                      <button
+                        onClick={handlePrevFact}
+                        className="p-1 rounded hover:bg-[#C9A962]/20 transition-colors"
+                        aria-label="Previous fact"
+                      >
+                        <ChevronLeft className="w-4 h-4 text-[#C9A962]" />
+                      </button>
+                      <button
+                        onClick={handleNextFact}
+                        className="p-1 rounded hover:bg-[#C9A962]/20 transition-colors"
+                        aria-label="Next fact"
+                      >
+                        <ChevronRight className="w-4 h-4 text-[#C9A962]" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
           </div>
 
             {/* Output Section - Transliterated */}
@@ -484,9 +626,12 @@ Examples:
   (Microsoft Word, Google Docs, etc.) and apply the downloaded Rencong font 
   to display it in proper Neo-Rencong script
 </p>
-            <ScrollArea className="scroll-area">
+<ScrollArea className="scroll-area">
   {isBlocked ? (
-    <div className="io-box custom-scrollbar bg-black/20 flex items-center justify-center min-h-[200px]">
+    <div 
+      className="io-box custom-scrollbar bg-black/20 flex items-center justify-center"
+      style={{ height: '380px' }}
+    >
       <span className="text-[#CC7722] text-center">
         ⚠️ Output Blocked!<br/>
         <span className="text-sm">Please specify all 'e' characters using e1 or e4</span>
@@ -498,6 +643,7 @@ Examples:
       readOnly
       placeholder="Transliterated output will appear here..."
       className="io-box custom-scrollbar bg-black/20"
+      style={{ height: '380px', resize: 'none' }}
       spellCheck={false}
     />
   )}
@@ -512,74 +658,416 @@ Examples:
         </div>
 
                 {/* Rencong Script Output */}
-                <div className="mt-6 ornate-border corner-decoration p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Scroll className="w-5 h-5 text-[#C9A962]" />
-              <label className="io-label">Rencong Script Display</label>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    // Create font file content with custom settings
-                    const fontCss = `@font-face {
-  font-family: 'Aksara Rencong';
-  src: url('data:font/woff2;charset=utf-8;base64,d09GMgABAAAAABl0AA8AAAAALGAAABkYAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGh4GYACDNggEEQgKxnC2DQt4AAE2AiQDgWwEIAWGDAeBIAwHG4Eio6KM1crJ/iqBmwOaR3uACAlhdWpYd9OJxIK4LvqRn5h3CaZWjJBkdnh+m733fiSfD62iAhbiUBEjN7Owe2XmItJF6865SrfrVV9k71qeJ2/v/+06n2ikkUUWCOWBJZtXZ760SqttBVrOUVMCMPz/8oFLY4clXpNVlmwH2/pi3+WIc2X6Bq2fAPrv79lcvUc/xdJ4kPDqWa3/IOX6H8C+MIV6L9JkOiA7wcJgR9OazT21KM7RluYQviqEbsZkZ5P/nd3k2d98283XHC05au4orVgsGoVQf0dp1TUjEQopkViNslVlOF8omdnFmFW2SVfTPfrJRZkm5RtFAADMwCePhmXb5GP7C4CdinwoqA0CgeEk8UM7AoCXhBsQbJ5erYI129eHL2sQAAgxwHxRzHPFXUk5IJrEfkw/vVNJR0ERivDLJqk/FGIrqWMTADglYW8CbotREosC/j0l9GbwFaZEv/3TgFOm+YtRfVu47w9ve8ubHgWmGz3IfCTJyPhcQkvxidX8+HNgFUDHmU2gIAbBQoTy4MmLSRgzAA9QVgQr9kHmS0AAt4FAoqLtaBFsLVsKpUqtuSF2DYPRzd3D08vkbT5vgHOGxVft5+9gDbjNaQsMMgSHhDphPxBb/OGsoX0kKW2kxaCIQrdTWc0vACS/QtKMRr84HdhBTJb49gQISbwr4SHJdyU6PcSOe6zpWGOXFV7vlwTwKfpo1TaLJcAvIihCpTE5GnlBWlHooNL4mJ3maR1438gYqyneW+QFjhd4icDyEqmTo4/gIgq8i0IttflLPaIz3STypCAvhU5njnDzkykcnDxdNA6iH0dI8AKOUDyowLE1ULEZoNYhjYKJjWUL2BsFaFuQbBaVQXZw7EmPkrKBA5wc0N8PFnxsl5V28Mg056F2M6a4cBpXedkCJBqpQarZgowagvCCaXCr6D+V2niLHjFHA4ACluzI/VhSnvWxA2ct0lTxBZLNI19zbH//vBzvu1fcS6OtEarCTMLPiAs+hME72c6U7QsLiskgN7kTQfoIc2oEaPNdcZ9lAVs9hbVaSrL79c+QSrYiDO6PwLcrvc0jYImdslGVFmR5A7K7hbozAJY6Al4140Ky4gDvEH5L9h3WRhspII3VldLWqRxVvWs+w69j+KLH5yLLCTcahH+tqx0cLOFviE+5gaU1oFnmXRWmMD1JUCXvYi9QPZ7CMUXDC1LMIvcDSyK10zvcbEZZ0Ccy+seaUOoQbJ+zznIseXxdjCWNJZUKERBu0tf/KG3F89sB8jCQoyWFjUCSTIKWbhzbSG1pLEWb6TOzvAHkrtc80C4wVInOSQGwbwB7pALJjOgcu+vVJrtmYzu9rRSM14eIb4sRgDWEwLEsuahGVVR4GuIuqhpNqaKKE98o/6267f1DEgF15+1IBavF33ewTgwEI+2u0sAOVA3eBujD8PjkfSEGSwHQZ5UJh08XdREYwAdmwWCoXqts9aRuXqXFje7hpgUkiWV77B8sRUB6GGe8+2UWc6Uiv34QQg6YnEC7pkZ4m/TobMRV3F3BeSvjcAHPja8aMoHXqmrakfdLV0Isot1yMzdTV1Dfk/QJhSUpunYt3ztnKxCB1cZFi/J8vhqyOSkXOK5oP/j6TbkPo7tShbku6sk5u1s6mjcMn3r4uusGpsuzDxqQjHtf5zjTXfMxIDX3LqLqboaMlf9z7KUBhzcTRDt37WY3qeCpCLeWxsMy1ugcCCGHB+E75FlI0ht32Z3Ok6AasmEUIsRSclmrtQe6bI2L5LAJBE4KPVeIRXu1yVnKPaKHWyapO6VSj0qeRKlcU1YZs6GORSU7522Np') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
+<div className="mt-6 ornate-border corner-decoration p-6">
+  <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center gap-2">
+      <Scroll className="w-5 h-5 text-[#C9A962]" />
+      <label className="io-label">Rencong Script Display</label>
+    </div>
+    
+    {/* All buttons wrapped in a single flex container */}
+    <div className="flex gap-2">
+      <button
+        onClick={async () => {
+          try {
+            const JSZip = (await import('jszip')).default;
+            const zip = new JSZip();
+            
+            // 1. Add the TTF font file
+            const fontResponse = await fetch('/fonts/AksaraRencong-Regular.ttf');
+            const fontBlob = await fontResponse.blob();
+            zip.file('Aksara Neo-Rencong.ttf', fontBlob);
+            
+            // 2. Create comprehensive CSS file
+            const cssContent = `/* ============================================
+       AKSAKA NEO-RENCONG - COMPLETE TYPOGRAPHY SYSTEM
+       Generated from Neo-Rencong Transliterator
+       https://rencong-transliterator.vercel.app/
+       ============================================ */
 
-/* Neo-Rencong Custom Settings */
-.rencong-text {
-  font-family: 'Aksara Rencong', serif;
-  font-size: 42px;
-  line-height: 1.0;
-  letter-spacing: -0.02em;
-  word-spacing: 0.15em;
-  word-break: break-word;
-  white-space: normal;
-  overflow-wrap: break-word;
-}
+    /* Font Face Declaration */
+    @font-face {
+      font-family: 'Aksara Rencong';
+      src: url('Aksara Neo-Rencong.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
 
-.rencong-align-left { text-align: left; }
-.rencong-align-center { text-align: center; }
-.rencong-align-right { text-align: right; }
-.rencong-align-justify { text-align: justify; }`;
+                /* ============================================
+                  QUICK START
+                  ============================================
+                  
+                  1. Link this CSS file in your HTML:
+                      <link rel="stylesheet" href="Aksara Neo-Rencong.css">
+                  
+                  2. Apply the base class to any element:
+                      <p class="rencong-text">Your text here</p>
+                  
+                  3. Add modifier classes for alignment, size, etc:
+                      <p class="rencong-text rencong-align-center rencong-size-lg">
+                        Centered large text
+                      </p>
+                */
 
-                    const blob = new Blob([fontCss], { type: 'text/css' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'Aksara Neo-Rencong.css';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                /* ============================================
+                  BASE CONFIGURATION
+                  ============================================ */
+
+                .rencong-text {
+                  font-family: 'Aksara Rencong', serif;
+                  font-size: 42px;
+                  line-height: 1.6;
+                  letter-spacing: 0.02em;
+                  word-spacing: 0.1em;
+                  color: #2C1810;
+                  word-wrap: break-word;
+                  overflow-wrap: break-word;
+                  hyphens: auto;
+                }
+
+                /* ============================================
+                  SIZE SCALE
+                  ============================================ */
+
+                .rencong-size-xs { font-size: 18px; }
+                .rencong-size-sm { font-size: 24px; }
+                .rencong-size-base { font-size: 32px; }
+                .rencong-size-md { font-size: 42px; }
+                .rencong-size-lg { font-size: 56px; }
+                .rencong-size-xl { font-size: 72px; }
+                .rencong-size-2xl { font-size: 96px; }
+                .rencong-size-3xl { font-size: 120px; }
+
+                /* ============================================
+                  ALIGNMENT OPTIONS
+                  ============================================ */
+
+                .rencong-align-left { text-align: left; }
+                .rencong-align-center { text-align: center; }
+                .rencong-align-right { text-align: right; }
+                .rencong-align-justify { 
+                  text-align: justify;
+                  text-justify: inter-word;
+                }
+
+                /* Vertical Writing (Traditional) */
+                .rencong-vertical {
+                  writing-mode: vertical-rl;
+                  text-orientation: upright;
+                  height: 100%;
+                }
+
+                .rencong-vertical-left {
+                  writing-mode: vertical-lr;
+                  text-orientation: upright;
+                }
+
+                /* ============================================
+                  SPACING SYSTEM
+                  ============================================ */
+
+                /* Line Height */
+                .rencong-leading-tight { line-height: 1.2; }
+                .rencong-leading-normal { line-height: 1.6; }
+                .rencong-leading-relaxed { line-height: 2.0; }
+                .rencong-leading-loose { line-height: 2.4; }
+
+                /* Letter Spacing */
+                .rencong-tracking-tight { letter-spacing: -0.02em; }
+                .rencong-tracking-normal { letter-spacing: 0.02em; }
+                .rencong-tracking-wide { letter-spacing: 0.05em; }
+
+                /* Word Spacing */
+                .rencong-word-tight { word-spacing: 0.02em; }
+                .rencong-word-normal { word-spacing: 0.1em; }
+                .rencong-word-wide { word-spacing: 0.2em; }
+
+                /* ============================================
+                  DECORATION & COLORS
+                  ============================================ */
+
+                .rencong-gold { color: #C9A962; }
+                .rencong-ink { color: #2C1810; }
+                .rencong-crimson { color: #8B0000; }
+
+                .rencong-shadow-gold {
+                  text-shadow: 0 0 10px rgba(201, 169, 98, 0.5);
+                }
+
+                /* ============================================
+                  LAYOUT HELPERS
+                  ============================================ */
+
+                .rencong-container-narrow { max-width: 600px; margin: 0 auto; }
+                .rencong-container-medium { max-width: 900px; margin: 0 auto; }
+                .rencong-container-wide { max-width: 1200px; margin: 0 auto; }
+
+                .rencong-indent { text-indent: 2em; }
+
+                /* ============================================
+                  PRESET STYLES
+                  ============================================ */
+
+                /* Traditional Manuscript */
+                .rencong-manuscript {
+                  font-family: 'Aksara Rencong', serif;
+                  font-size: 42px;
+                  line-height: 1.0;
+                  letter-spacing: 0.02em;
+                  word-spacing: 0.15em;
+                  text-align: justify;
+                  color: #2C1810;
+                  text-indent: 2em;
+                }
+
+                /* Display/Heading */
+                .rencong-display {
+                  font-family: 'Aksara Rencong', serif;
+                  font-size: 72px;
+                  line-height: 1.2;
+                  letter-spacing: 0.05em;
+                  text-align: center;
+                  color: #C9A962;
+                }
+
+                /* Poetry */
+                .rencong-poetry {
+                  font-family: 'Aksara Rencong', serif;
+                  font-size: 36px;
+                  line-height: 2.0;
+                  text-align: center;
+                  color: #2C1810;
+                  white-space: pre-line;
+                }
+
+                /* ============================================
+                  RESPONSIVE
+                  ============================================ */
+
+                @media (max-width: 768px) {
+                  .rencong-text { font-size: 32px; line-height: 1.8; }
+                  .rencong-size-lg { font-size: 42px; }
+                  .rencong-size-xl { font-size: 56px; }
+                  .rencong-vertical { writing-mode: horizontal-tb; }
+                }
+
+                @media print {
+                  .rencong-text, [class*="rencong-"] {
+                    color: #000 !important;
+                    text-shadow: none !important;
+                  }
+                }`;
+
+                      zip.file('Aksara Neo-Rencong.css', cssContent);
+                      
+                      // 3. Create README file
+                      const readmeContent = `# Aksara Neo-Rencong Font Package
+
+                ## Contents
+
+                This package contains everything you need to use the Neo-Rencong script in your projects:
+
+                - \`Aksara Neo-Rencong.ttf\` - The font file
+                - \`Aksara Neo-Rencong.css\` - Complete CSS typography system
+                - \`README.md\` - This file
+
+                ## Quick Start
+
+                ### 1. Installation
+
+                Place all files in your project folder (keep them in the same directory).
+
+                ### 2. HTML Setup
+
+                Link the CSS file in your HTML \`<head>\`:
+
+                \`\`\`html
+                <link rel="stylesheet" href="Aksara Neo-Rencong.css">
+                \`\`\`
+
+                ### 3. Basic Usage
+
+                Apply the base class to any element:
+
+                \`\`\`html
+                <p class="rencong-text">Your Rencong text here</p>
+                \`\`\`
+
+                ## CSS Classes Reference
+
+                ### Base Class
+                - \`.rencong-text\` - Base font family and sizing
+
+                ### Size Modifiers
+                - \`.rencong-size-xs\` (18px)
+                - \`.rencong-size-sm\` (24px)
+                - \`.rencong-size-base\` (32px)
+                - \`.rencong-size-md\` (42px) - Default
+                - \`.rencong-size-lg\` (56px)
+                - \`.rencong-size-xl\` (72px)
+                - \`.rencong-size-2xl\` (96px)
+                - \`.rencong-size-3xl\` (120px)
+
+                ### Alignment
+                - \`.rencong-align-left\`
+                - \`.rencong-align-center\`
+                - \`.rencong-align-right\`
+                - \`.rencong-align-justify\`
+                - \`.rencong-vertical\` - Vertical writing mode
+
+                ### Spacing
+                - \`.rencong-leading-tight\` / \`normal\` / \`relaxed\` / \`loose\`
+                - \`.rencong-tracking-tight\` / \`normal\` / \`wide\`
+                - \`.rencong-word-tight\` / \`normal\` / \`wide\`
+
+                ### Preset Styles
+                - \`.rencong-manuscript\` - Traditional manuscript style
+                - \`.rencong-display\` - Large display text
+                - \`.rencong-poetry\` - Poetry formatting
+
+                ## Examples
+
+                ### Centered Title
+                \`\`\`html
+                <h1 class="rencong-text rencong-align-center rencong-size-xl">
+                  Title Text
+                </h1>
+                \`\`\`
+
+                ### Justified Paragraph
+                \`\`\`html
+                <p class="rencong-text rencong-align-justify rencong-indent">
+                  Your paragraph text here...
+                </p>
+                \`\`\`
+
+                ### Vertical Text (Traditional)
+                \`\`\`html
+                <div class="rencong-text rencong-vertical" style="height: 400px;">
+                  Vertical text content
+                </div>
+                \`\`\`
+
+                ### Poetry Style
+                \`\`\`html
+                <div class="rencong-poetry">
+                  Line one
+                  Line two
+                  Line three
+                </div>
+                \`\`\`
+
+                ## How to Get Rencong Text
+
+                1. Visit: https://rencong-transliterator.vercel.app/
+                2. Type your text in Latin/Rumi script
+                3. Copy the transliterated output
+                4. Paste into your HTML with the rencong-text class applied
+
+                ## Special Characters
+
+                When typing in the transliterator, use these special codes:
+
+                | Type | Result | Description |
+                |------|--------|-------------|
+                | e1 | e | E pepet (schwa) |
+                | e4 | E | E taling (closed e) |
+                | gh | G | Gha |
+                | ng | N | Nga |
+                | ny | Y | Nya |
+                | kh | K | Kha |
+                | sy | H | Sya |
+                | th | T | Tha |
+                | dh | D | Dha |
+                | - | O | Separator becomes O |
+
+                ## Browser Support
+
+                Works in all modern browsers that support:
+                - WOFF2/TTF fonts
+                - CSS Custom Properties
+                - Flexbox/Grid
+
+                ## License
+
+                This font is part of the Neo-Rencong project aimed at reviving traditional Malay scripts.
+
+                Project: https://rencong-transliterator.vercel.app/
+                Initiated: 2024
+
+                ## Troubleshooting
+
+                **Font not displaying?**
+                - Ensure the TTF file is in the same folder as the CSS
+                - Check that the font file path in the CSS @font-face rule matches your folder structure
+                - Try clearing browser cache
+
+                **Text looks too small/large?**
+                - Use the size modifier classes (rencong-size-lg, etc.)
+                - Or override font-size in your own CSS
+
+                **Vertical text not working?**
+                - Ensure the container has a defined height
+                - Some mobile browsers may not support vertical writing modes
+
+                ## Support
+
+                For issues or questions about the transliterator:
+                Visit: https://rencong-transliterator.vercel.app/
+
+                ---
+
+                Generated by Neo-Rencong Transliterator
+                Preserving Ancient Malay Heritage through Digital Innovation
+                `;
+
+                      zip.file('README.md', readmeContent);
+                      
+                      
+                      // Generate the ZIP file
+                      const zipBlob = await zip.generateAsync({ type: 'blob' });
+                      
+                      // Trigger download
+                      const url = URL.createObjectURL(zipBlob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'Aksara Neo-Rencong Complete Package.zip';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                      
+                    } catch (error) {
+                      console.error('Error creating ZIP:', error);
+                      alert('Failed to create ZIP file. Please try again.');
+                    }
                   }}
                   className="copy-btn"
-                  title="Download Rencong font CSS"
+                  title="Download complete font package (ZIP)"
                 >
-                  <Download className="w-4 h-4" />
-                  Font
+                  <FileArchive className="w-4 h-4" />
+                  Download Font
                 </button>
-              <button
-                onClick={() => handleCopy(output)}
-                className={`copy-btn ${copied ? 'copied' : ''}`}
-              >
-                <Copy className="w-4 h-4" />
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-              <button
-                onClick={handlePrintRencong}
-                className="copy-btn"
-                title="Print or save as PDF/PNG"
-              >
-                <Printer className="w-4 h-4" />
-                Print
-              </button>
+                
+                <button
+                  onClick={() => handleCopy(output)}
+                  className={`copy-btn ${copied ? 'copied' : ''}`}
+                >
+                  <Copy className="w-4 h-4" />
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+                
+                <button
+                  onClick={handlePrintRencong}
+                  className="copy-btn"
+                  title="Print or save as PDF/PNG"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print
+                </button>
+              </div>
             </div>
-          </div>
           {/* Replace the entire ScrollArea section with this */}
           <div 
   className={`h-[300px] w-full rounded-md border border-[rgba(201,169,98,0.3)] ${output && !isBlocked ? 'overflow-y-auto custom-scrollbar' : 'overflow-hidden'}`}
@@ -934,6 +1422,7 @@ Examples:
       <footer className="py-6 text-center text-[#C9A962]/40 text-sm">
         <div className="section-divider max-w-xs mx-auto mb-4" />
         <p>Neo-Rencong Transliterator — Reviving Ancient Heritage</p>
+        <p className="mt-2 text-[#C9A962]/60">Developed by <span className="text-[#C9A962]">Tengku Lafuan</span></p>
       </footer>
     </div>
   );

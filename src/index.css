@@ -264,3 +264,34 @@
   @apply overflow-auto custom-scrollbar;
   max-height: 400px;
 }
+
+/* Facts Carousel Animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fact-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.fact-slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
