@@ -261,166 +261,782 @@ const handleToggleChange = useCallback(() => {
     }
   }, []);
 
-      // Print Rencong to PDF/PNG with alignment options
-  const handlePrintRencong = useCallback(() => {
+  // Print Rencong to PDF with alignment options - FIXED VERSION
+  const handlePrintRencong = useCallback(async () => {
     if (!output) return;
-    
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
 
+    // Open new window for print preview
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups to use the print feature');
+      return;
+    }
+
+    // Write complete HTML document to the new window
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
           <title>Neo-Rencong Output</title>
+          <meta charset="UTF-8">
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>
           <style>
             @font-face {
               font-family: 'Aksara Rencong';
-              src: url('data:font/woff2;charset=utf-8;base64,d09GMgABAAAAABl0AA8AAAAALGAAABkYAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGh4GYACDNggEEQgKxnC2DQt4AAE2AiQDgWwEIAWGDAeBIAwHG4Eio6KM1crJ/iqBmwOaR3uACAlhdWpYd9OJxIK4LvqRn5h3CaZWjJBkdnh+m733fiSfD62iAhbiUBEjN7Owe2XmItJF6865SrfrVV9k71qeJ2/v/+06n2ikkUUWCOWBJZtXZ760SqttBVrOUVMCMPz/8oFLY4clXpNVlmwH2/pi3+WIc2X6Bq2fAPrv79lcvUc/xdJ4kPDqWa3/IOX6H8C+MIV6L9JkOiA7wcJgR9OazT21KM7RluYQviqEbsZkZ5P/nd3k2d98283XHC05au4orVgsGoVQf0dp1TUjEQopkViNslVlOF8omdnFmFW2SVfTPfrJRZkm5RtFAADMwCePhmXb5GP7C4CdinwoqA0CgeEk8UM7AoCXhBsQbJ5erYI129eHL2sQAAgxwHxRzHPFXUk5IJrEfkw/vVNJR0ERivDLJqk/FGIrqWMTADglYW8CbotREosC/j0l9GbwFaZEv/3TgFOm+YtRfVu47w9ve8ubHgWmGz3IfCTJyPhcQkvxidX8+HNgFUDHmU2gIAbBQoTy4MmLSRgzAA9QVgQr9kHmS0AAt4FAoqLtaBFsLVsKpUqtuSF2DYPRzd3D08vkbT5vgHOGxVft5+9gDbjNaQsMMgSHhDphPxBb/OGsoX0kKW2kxaCIQrdTWc0vACS/QtKMRr84HdhBTJb49gQISbwr4SHJdyU6PcSOe6zpWGOXFV7vlwTwKfpo1TaLJcAvIihCpTE5GnlBWlHooNL4mJ3maR1438gYqyneW+QFjhd4icDyEqmTo4/gIgq8i0IttflLPaIz3STypCAvhU5njnDzkykcnDxdNA6iH0dI8AKOUDyowLE1ULEZoNYhjYKJjWUL2BsFaFuQbBaVQXZw7EmPkrKBA5wc0N8PFnxsl5V28Mg056F2M6a4cBpXedkCJBqpQarZgowagvCCaXCr6D+V2niLHjFHA4ACluzI/VhSnvWxA2ct0lTxBZLNI19zbH//vBzvu1fcS6OtEarCTMLPiAs+hME72c6U7QsLiskgN7kTQfoIc2oEaPNdcZ9lAVs9hbVaSrL79c+QSrYiDO6PwLcrvc0jYImdslGVFmR5A7K7hbozAJY6Al4140Ky4gDvEH5L9h3WRhspII3VldLWqRxVvWs+w69j+KLH5yLLCTcahH+tqx0cLOFviE+5gaU1oFnmXRWmMD1JUCXvYi9QPZ7CMUXDC1LMIvcDSyK10zvcbEZZ0Ccy+seaUOoQbJ+zznIseXxdjCWNJZUKERBu0tf/KG3F89sB8jCQoyWFjUCSTIKWbhzbSG1pLEWb6TOzvAHkrtc80C4wVInOSQGwbwB7pALJjOgcu+vVJrtmYzu9rRSM14eIb4sRgDWEwLEsuahGVVR4GuIuqhpNqaKKE98o/6267f1DEgF15+1IBavF33ewTgwEI+2u0sAOVA3eBujD8PjkfSEGSwHQZ5UJh08XdREYwAdmwWCoXqts9aRuXqXFje7hpgUkiWV77B8sRUB6GGe8+2UWc6Uiv34QQg6YnEC7pkZ4m/TobMRV3F3BeSvjcAHPja8aMoHXqmrakfdLV0Isot1yMzdTV1Dfk/QJhSUpunYt3ztnKxCB1cZFi/J8vhqyOSkXOK5oP/j6TbkPo7tShbku6sk5u1s6mjcMn3r4uusGpsuzDxqQjHtf5zjTXfMxIDX3LqLqboaMlf9z7KUBhzcTRDt37WY3qeCpCLeWxsMy1ugcCCGHB+E75FlI0ht32Z3Ok6AasmEUIsRSclmrtQe6bI2L5LAJBE4KPVeIRXu1yVnKPaKHWyapO6VSj0qeRKlcU1YZs6GORSU7522Np') format('woff2');
+              src: url('/fonts/AksaraRencong-Regular.ttf') format('truetype');
               font-weight: normal;
               font-style: normal;
             }
+            
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
             }
+            
             body {
               margin: 0;
-              padding: 40px;
-              background: white;
-              font-family: 'Aksara Rencong', serif;
+              padding: 20px;
+              background: #525659;
+              font-family: 'Segoe UI', Arial, sans-serif;
               min-height: 100vh;
+            }
+            
+            .main-container {
+              display: flex;
+              gap: 20px;
+              max-width: 1400px;
+              margin: 0 auto;
+              min-height: calc(100vh - 40px);
+            }
+            
+            .control-panel {
+              width: 280px;
+              flex-shrink: 0;
+              background: #ffffff;
+              border-radius: 12px;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+              padding: 24px;
+              position: sticky;
+              top: 20px;
+              height: fit-content;
+              max-height: calc(100vh - 40px);
+              overflow-y: auto;
+              border: 1px solid #e0e0e0;
+            }
+            
+            .control-panel h3 {
+              font-family: 'Segoe UI', Arial, sans-serif;
+              font-size: 18px;
+              font-weight: 600;
+              color: #2c3e50;
+              margin-bottom: 20px;
+              padding-bottom: 12px;
+              border-bottom: 2px solid #3498db;
+            }
+            
+            .control-group {
+              margin-bottom: 24px;
+            }
+            
+            .control-group label {
+              display: block;
+              font-family: 'Segoe UI', Arial, sans-serif;
+              font-size: 12px;
+              font-weight: 600;
+              color: #555;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            
+            .orientation-group {
+              display: flex;
+              gap: 10px;
+            }
+            
+            .orientation-btn {
+              flex: 1;
+              padding: 12px 8px;
+              border: 2px solid #e0e0e0;
+              background: #f8f9fa;
+              border-radius: 8px;
+              cursor: pointer;
+              font-family: 'Segoe UI', Arial, sans-serif;
+              font-size: 13px;
+              font-weight: 500;
+              color: #555;
+              transition: all 0.2s;
               display: flex;
               flex-direction: column;
-            }
-            .controls {
-              position: fixed;
-              top: 20px;
-              left: 50%;
-              transform: translateX(-50%);
-              background: #f5f5f5;
-              padding: 15px 25px;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-              z-index: 1000;
-              display: flex;
-              gap: 15px;
               align-items: center;
-              flex-wrap: wrap;
+              gap: 6px;
+            }
+            
+            .orientation-btn:hover {
+              border-color: #3498db;
+              background: #ebf5fb;
+            }
+            
+            .orientation-btn.active {
+              border-color: #3498db;
+              background: #3498db;
+              color: white;
+            }
+            
+            .orientation-btn svg {
+              width: 24px;
+              height: 24px;
+            }
+            
+            .alignment-group {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 8px;
+            }
+            
+            .alignment-btn {
+              padding: 10px;
+              border: 2px solid #e0e0e0;
+              background: #f8f9fa;
+              border-radius: 6px;
+              cursor: pointer;
+              transition: all 0.2s;
+              display: flex;
+              align-items: center;
               justify-content: center;
             }
-            .control-group {
+            
+            .alignment-btn:hover {
+              border-color: #3498db;
+              background: #ebf5fb;
+            }
+            
+            .alignment-btn.active {
+              border-color: #3498db;
+              background: #3498db;
+            }
+            
+            .alignment-btn svg {
+              width: 20px;
+              height: 20px;
+              stroke: #555;
+              stroke-width: 2;
+              fill: none;
+            }
+            
+            .alignment-btn.active svg {
+              stroke: white;
+            }
+            
+            .slider-container {
+              background: #f8f9fa;
+              padding: 16px;
+              border-radius: 8px;
+              border: 1px solid #e0e0e0;
+            }
+            
+            .slider-header {
               display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+            }
+            
+            .slider-value {
+              font-family: 'Segoe UI', Arial, sans-serif;
+              font-size: 14px;
+              font-weight: 600;
+              color: #3498db;
+              background: white;
+              padding: 4px 10px;
+              border-radius: 4px;
+              border: 1px solid #3498db;
+              min-width: 50px;
+              text-align: center;
+            }
+            
+            input[type="range"] {
+              width: 100%;
+              height: 6px;
+              background: #e0e0e0;
+              border-radius: 3px;
+              outline: none;
+              cursor: pointer;
+              -webkit-appearance: none;
+            }
+            
+            input[type="range"]::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              width: 20px;
+              height: 20px;
+              background: #3498db;
+              border-radius: 50%;
+              cursor: grab;
+              border: 3px solid white;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            }
+            
+            input[type="range"]::-webkit-slider-thumb:hover {
+              background: #2980b9;
+              transform: scale(1.1);
+            }
+            
+            .toggle-container {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              background: #f8f9fa;
+              padding: 14px;
+              border-radius: 8px;
+              border: 1px solid #e0e0e0;
+              cursor: pointer;
+              transition: all 0.2s;
+            }
+            
+            .toggle-container:hover {
+              border-color: #3498db;
+              background: #ebf5fb;
+            }
+            
+            .toggle-switch {
+              position: relative;
+              width: 48px;
+              height: 26px;
+              background: #ccc;
+              border-radius: 13px;
+              transition: background 0.3s;
+            }
+            
+            .toggle-switch.active {
+              background: #3498db;
+            }
+            
+            .toggle-thumb {
+              position: absolute;
+              top: 3px;
+              left: 3px;
+              width: 20px;
+              height: 20px;
+              background: white;
+              border-radius: 50%;
+              transition: transform 0.3s;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            
+            .toggle-switch.active .toggle-thumb {
+              transform: translateX(22px);
+            }
+            
+            .save-pdf-btn {
+              width: 100%;
+              padding: 14px;
+              background: #3498db;
+              color: white;
+              border: none;
+              border-radius: 8px;
+              font-family: 'Segoe UI', Arial, sans-serif;
+              font-size: 15px;
+              font-weight: 600;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+              transition: all 0.2s;
+              box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+              margin-top: 10px;
+            }
+            
+            .save-pdf-btn:hover {
+              background: #2980b9;
+              transform: translateY(-2px);
+              box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+            }
+            
+            .save-pdf-btn:active {
+              transform: translateY(0);
+            }
+            
+            .pages-container {
+              flex: 1;
+              display: none;
+              flex-direction: column;
+              align-items: center;
+              gap: 40px;
+              padding-bottom: 40px;
+            }
+            
+            .pages-container.visible {
+              display: flex;
+            }
+            
+            .page-wrapper {
+              display: flex;
+              flex-direction: column;
               align-items: center;
               gap: 8px;
             }
-            .control-group label {
-              font-family: 'Georgia', serif;
-              font-size: 13px;
-              color: #555;
-              font-weight: 600;
-            }
-            .control-group select,
-            .control-group button {
-              padding: 6px 12px;
-              font-size: 13px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
+            
+            .page {
+              width: 210mm;
+              height: 297mm;
               background: white;
-              cursor: pointer;
-              font-family: 'Georgia', serif;
-            }
-            .control-group button {
-              background: #C9A962;
-              color: white;
-              border-color: #C9A962;
-              font-weight: 600;
-            }
-            .control-group button:hover {
-              background: #b8984f;
-            }
-                        .content-wrapper {
-              flex: 1;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+              position: relative;
+              overflow: hidden;
+              page-break-after: always;
+              page-break-inside: avoid;
               display: flex;
               flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              padding: 100px 40px 80px;
-              min-height: calc(100vh - 180px);
             }
-              .rencong-output {
+            
+            .page.landscape {
+              width: 297mm;
+              height: 210mm;
+            }
+            
+            .page-number {
+              font-family: 'Segoe UI', Arial, sans-serif;
+              font-size: 12px;
+              color: #999;
+              background: #f5f5f5;
+              padding: 6px 16px;
+              border-radius: 12px;
+              border: 1px solid #ddd;
+            }
+            
+            .page-content {
+              flex: 1;
+              width: 100%;
+              padding: 25.4mm;
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+              hyphens: auto;
+              display: flex;
+              flex-direction: column;
+            }
+            
+            .page.landscape .page-content {
+              padding: 25.4mm;
+            }
+            
+            .rencong-text {
               font-family: 'Aksara Rencong', serif;
-              font-size: 48px;
-              line-height: 1.6;
-              color: #2C1810;
+              font-size: 42px;
+              line-height: 1.0;
+              color: #000;
+              white-space: pre-wrap;
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+              word-break: break-word;
               width: 100%;
-              max-width: 100%;
             }
-              /* Each line is a block */
-            .line {
-              width: 100%;
-              min-height: 1.2em;
-            }
-            /* Alignment classes */
-            .align-left .line {
+            
+            .align-left {
               text-align: left;
             }
-            .align-center .line {
+            
+            .align-center {
               text-align: center;
             }
-            .align-right .line {
+            
+            .align-right {
               text-align: right;
             }
-            .align-justify .line {
+            
+            .align-justify {
               text-align: justify;
+              text-justify: inter-word;
             }
-              @media print {
-              body { padding: 0; }
-              .controls { display: none; }
-              .content-wrapper { 
-                padding: 40px; 
-                min-height: 100vh;
+            
+            .valign-center {
+              justify-content: center;
+            }
+            
+            .valign-top {
+              justify-content: flex-start;
+            }
+            
+            .initial-message {
+              position: absolute;
+              top: 50%;
+              left: calc(50% + 140px);
+              transform: translate(-50%, -50%);
+              text-align: center;
+              color: #666;
+              font-family: 'Segoe UI', Arial, sans-serif;
+              padding: 40px;
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+              max-width: 400px;
+              z-index: 1000;
+            }
+            
+            @media screen and (max-width: 1200px) {
+              .main-container {
+                flex-direction: column;
+              }
+              
+              .control-panel {
+                width: 100%;
+                position: relative;
+                top: 0;
+                max-height: none;
+              }
+              
+              .page {
+                transform: scale(0.7);
+                transform-origin: top center;
+              }
+              
+              .initial-message {
+                left: 50%;
+                position: relative;
+                transform: translate(-50%, 0);
+                margin-top: 20px;
               }
             }
           </style>
         </head>
         <body>
-          <div class="controls no-print">
-            <div class="control-group">
-              <label>Alignment:</label>
-              <select id="alignSelect" onchange="updateAlignment()">
-                <option value="align-center" selected>Center</option>
-                <option value="align-left">Left</option>
-                <option value="align-right">Right</option>
-                <option value="align-justify">Justify</option>
-              </select>
+          <div class="main-container">
+            <!-- Left Control Panel -->
+            <div class="control-panel no-print">
+              <h3>Page Settings</h3>
+              
+              <!-- Orientation -->
+              <div class="control-group">
+                <label>Orientation</label>
+                <div class="orientation-group">
+                  <button class="orientation-btn" id="portraitBtn" onclick="setOrientation('portrait')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/></svg>
+                    Portrait
+                  </button>
+                  <button class="orientation-btn" id="landscapeBtn" onclick="setOrientation('landscape')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                    Landscape
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Alignment -->
+              <div class="control-group">
+                <label>Text Alignment</label>
+                <div class="alignment-group">
+                  <button class="alignment-btn" id="alignLeft" onclick="setAlignment('left')" title="Left">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+                  </button>
+                  <button class="alignment-btn active" id="alignCenter" onclick="setAlignment('center')" title="Center">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M4 18h16"/></svg>
+                  </button>
+                  <button class="alignment-btn" id="alignRight" onclick="setAlignment('right')" title="Right">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16M10 12h10M4 18h16"/></svg>
+                  </button>
+                  <button class="alignment-btn" id="alignJustify" onclick="setAlignment('justify')" title="Justify">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Font Size -->
+              <div class="control-group">
+                <label>Font Size</label>
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span>Size</span>
+                    <span class="slider-value" id="fontSizeValue">42px</span>
+                  </div>
+                  <input type="range" id="fontSizeSlider" min="12" max="120" value="42" oninput="updateFontSize()">
+                </div>
+              </div>
+              
+              <!-- Line Spacing -->
+              <div class="control-group">
+                <label>Line Spacing</label>
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span>Spacing</span>
+                    <span class="slider-value" id="lineSpacingValue">1.0</span>
+                  </div>
+                  <input type="range" id="lineSpacingSlider" min="0.8" max="3.0" step="0.1" value="1.0" oninput="updateLineSpacing()">
+                </div>
+              </div>
+              
+              <!-- Vertical Align Toggle -->
+              <div class="control-group">
+                <label>Vertical Position</label>
+                <div class="toggle-container" onclick="toggleVerticalAlign()">
+                  <span style="font-size: 14px; color: #555;">Center vertically</span>
+                  <div class="toggle-switch active" id="vAlignToggle">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Save As PDF Button -->
+              <button class="save-pdf-btn" id="savePdfBtn" onclick="generatePDF()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Save As PDF
+              </button>
             </div>
             
-            <div class="control-group">
-              <button onclick="window.print()">🖨️ Print / Save PDF</button>
+            <!-- Pages Container -->
+            <div class="pages-container" id="pagesContainer">
+              <!-- Pages will be generated here -->
             </div>
-          </div>
-          
-          <div class="content-wrapper" id="contentWrapper">
-            <div class="rencong-output align-center" id="output">
-              ${output.split('\n').map(line => `<div class="line">${line || '&nbsp;'}</div>`).join('')}
+            
+            <!-- Initial State Message -->
+            <div class="initial-message" id="initialMessage">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="1.5" style="margin-bottom: 16px;">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+              </svg>
+              <h3 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px; font-weight: 600;">Select Orientation First</h3>
+              <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">
+                Please choose either <strong style="color: #3498db;">Portrait</strong> or <strong style="color: #3498db;">Landscape</strong> orientation to preview your document.
+              </p>
             </div>
           </div>
 
           <script>
-            function updateAlignment() {
-              const output = document.getElementById('output');
-              const select = document.getElementById('alignSelect');
-              output.className = 'rencong-output ' + select.value;
+            // Wait for libraries to load
+            window.onload = function() {
+              init();
+            };
+            
+            // Configuration
+            let currentOrientation = 'portrait';
+            let currentAlignment = 'center';
+            let currentFontSize = 42;
+            let currentLineSpacing = 1.0;
+            let isVerticallyCentered = true;
+            let orientationSelected = false;
+            
+            const output = ${JSON.stringify(output)};
+            
+            // Page dimensions (in mm)
+            const PAGE_WIDTH = 210;
+            const PAGE_HEIGHT = 297;
+            const MARGIN = 25.4;
+            
+            function init() {
+              // Set initial active states
+              document.getElementById('alignCenter').classList.add('active');
+              document.getElementById('vAlignToggle').classList.add('active');
             }
             
+            function setOrientation(orientation) {
+              currentOrientation = orientation;
+              
+              // Update button styles
+              document.getElementById('portraitBtn').classList.toggle('active', orientation === 'portrait');
+              document.getElementById('landscapeBtn').classList.toggle('active', orientation === 'landscape');
+              
+              if (!orientationSelected) {
+                orientationSelected = true;
+                document.getElementById('initialMessage').style.display = 'none';
+                document.getElementById('pagesContainer').classList.add('visible');
+              }
+              
+              renderPages();
+            }
             
-          </script>
+            function setAlignment(alignment) {
+              currentAlignment = alignment;
+              
+              // Remove active from all
+              document.querySelectorAll('.alignment-btn').forEach(btn => {
+                btn.classList.remove('active');
+              });
+              
+              // Add active to selected
+              const btnId = 'align' + alignment.charAt(0).toUpperCase() + alignment.slice(1);
+              document.getElementById(btnId).classList.add('active');
+              
+              renderPages();
+            }
+            
+            function updateFontSize() {
+              currentFontSize = parseInt(document.getElementById('fontSizeSlider').value);
+              document.getElementById('fontSizeValue').textContent = currentFontSize + 'px';
+              renderPages();
+            }
+            
+            function updateLineSpacing() {
+              currentLineSpacing = parseFloat(document.getElementById('lineSpacingSlider').value);
+              document.getElementById('lineSpacingValue').textContent = currentLineSpacing.toFixed(1);
+              renderPages();
+            }
+            
+            function toggleVerticalAlign() {
+              isVerticallyCentered = !isVerticallyCentered;
+              document.getElementById('vAlignToggle').classList.toggle('active', isVerticallyCentered);
+              renderPages();
+            }
+            
+            function renderPages() {
+              if (!orientationSelected) return;
+              
+              const container = document.getElementById('pagesContainer');
+              container.innerHTML = '';
+              
+              const isLandscape = currentOrientation === 'landscape';
+              const contentWidthMm = isLandscape ? (PAGE_HEIGHT - (MARGIN * 2)) : (PAGE_WIDTH - (MARGIN * 2));
+              const contentHeightMm = isLandscape ? (PAGE_WIDTH - (MARGIN * 2)) : (PAGE_HEIGHT - (MARGIN * 2));
+              
+              const mmToPx = 96 / 25.4;
+              const contentWidthPx = contentWidthMm * mmToPx;
+              const contentHeightPx = contentHeightMm * mmToPx;
+              
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              ctx.font = currentFontSize + 'px "Aksara Rencong", serif';
+              
+              const lineHeightPx = currentFontSize * currentLineSpacing;
+              
+              // Split by newlines first, then process each paragraph
+              const paragraphs = output.split('\\n');
+              const allLines = [];
+              
+              paragraphs.forEach((paragraph, pIndex) => {
+                const words = paragraph.trim().split(/\\s+/).filter(w => w.length > 0);
+                let currentLine = '';
+                
+                for (let i = 0; i < words.length; i++) {
+                  const word = words[i];
+                  const testLine = currentLine ? currentLine + ' ' + word : word;
+                  const metrics = ctx.measureText(testLine);
+                  
+                  if (metrics.width > contentWidthPx && currentLine !== '') {
+                    allLines.push(currentLine);
+                    currentLine = word;
+                  } else {
+                    currentLine = testLine;
+                  }
+                }
+                
+                if (currentLine) {
+                  allLines.push(currentLine);
+                }
+                
+                // Only add empty line if user actually entered an empty paragraph (double Enter)
+                if (pIndex < paragraphs.length - 1 && paragraph === '') {
+                  allLines.push('');
+                }
+              });
+              
+              const pages = [];
+              let currentPageLines = [];
+              let currentPageHeight = 0;
+              
+              for (let i = 0; i < allLines.length; i++) {
+                const lineHeight = lineHeightPx;
+                const projectedHeight = currentPageHeight + lineHeight;
+                const maxHeightWithBuffer = contentHeightPx * 0.95;
+                
+                if (projectedHeight > maxHeightWithBuffer && currentPageLines.length > 0) {
+                  pages.push(currentPageLines);
+                  currentPageLines = [allLines[i]];
+                  currentPageHeight = lineHeight;
+                } else {
+                  currentPageLines.push(allLines[i]);
+                  currentPageHeight += lineHeight;
+                }
+              }
+              
+              if (currentPageLines.length > 0) {
+                pages.push(currentPageLines);
+              }
+              
+              if (pages.length === 0) {
+                pages.push([]);
+              }
+              
+              pages.forEach((pageLines, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'page-wrapper';
+                
+                const pageNumber = document.createElement('div');
+                pageNumber.className = 'page-number';
+                pageNumber.textContent = 'Page ' + (index + 1) + ' of ' + pages.length;
+                
+                const page = document.createElement('div');
+                page.className = 'page ' + currentOrientation;
+                
+                const content = document.createElement('div');
+                content.className = 'page-content ' + (isVerticallyCentered ? 'valign-center' : 'valign-top');
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'rencong-text align-' + currentAlignment;
+                textDiv.style.fontSize = currentFontSize + 'px';
+                textDiv.style.lineHeight = currentLineSpacing;
+                textDiv.innerHTML = pageLines.map(line => line || '<br>').join('<br>');
+                
+                content.appendChild(textDiv);
+                page.appendChild(content);
+                wrapper.appendChild(pageNumber);
+                wrapper.appendChild(page);
+                container.appendChild(wrapper);
+              });
+            }
+            
+            async function generatePDF() {
+              if (!orientationSelected) {
+                alert('Please select an orientation first');
+                return;
+              }
+              
+              if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+                alert('Libraries still loading. Please wait a moment and try again.');
+                return;
+              }
+              
+              const { jsPDF } = window.jspdf;
+              const pages = document.querySelectorAll('.page');
+              
+              if (pages.length === 0) return;
+              
+              const isLandscape = currentOrientation === 'landscape';
+              const pdf = new jsPDF({
+                orientation: isLandscape ? 'landscape' : 'portrait',
+                unit: 'mm',
+                format: 'a4'
+              });
+              
+              for (let i = 0; i < pages.length; i++) {
+                if (i > 0) pdf.addPage();
+                
+                const canvas = await html2canvas(pages[i], {
+                  scale: 2,
+                  useCORS: true,
+                  allowTaint: true,
+                  backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = isLandscape ? 297 : 210;
+                const imgHeight = isLandscape ? 210 : 297;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+              }
+              
+              pdf.save('rencong-document.pdf');
+            }
+          <\/script>
         </body>
       </html>
     `);
+    
     printWindow.document.close();
   }, [output]);
 
@@ -1090,7 +1706,7 @@ Examples:
         letterSpacing: '-0.02em',
         wordSpacing: '0.15em',
         wordBreak: 'break-word',
-        whiteSpace: 'normal',
+        whiteSpace: 'pre-wrap',
         overflowWrap: 'break-word',
         color: '#F5E6D3',
         boxSizing: 'border-box'
